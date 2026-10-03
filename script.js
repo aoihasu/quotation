@@ -36,7 +36,11 @@ var BK=['co','addr','gst','rn','mob'];
 function openBuyer(){BK.forEach(function(k){$('m_'+k).value=S.f[k]||''});$('modal').style.display='flex';$('m_co').focus()}
 function closeBuyer(){$('modal').style.display='none'}
 function saveBuyer(){BK.forEach(function(k){S.f[k]=$('m_'+k).value});document.querySelectorAll('.f').forEach(function(e){e.value=S.f[e.dataset.k]||''});save();closeBuyer()}
-document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeBuyer();$('cat').style.display='none'}});
+document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeBuyer();closeDR();$('cat').style.display='none'}});
+function pad(n){return (n<10?'0':'')+n}
+function openDR(){var t=Date.parse(S.f.date||''),x=isNaN(t)?new Date():new Date(t);$('m_date').value=x.getFullYear()+'-'+pad(x.getMonth()+1)+'-'+pad(x.getDate());$('m_ref').value=S.f.ref||'';$('drmodal').style.display='flex';$('m_ref').focus()}
+function closeDR(){$('drmodal').style.display='none'}
+function saveDR(){var v=$('m_date').value;if(v){var p=v.split('-');S.f.date=(+p[2])+' '+M[+p[1]-1]+' '+p[0]}S.f.ref=$('m_ref').value;document.querySelectorAll('.f').forEach(function(e){e.value=S.f[e.dataset.k]||''});save();closeDR()}
 function pr(){var t=document.title;document.title='Quotation '+(S.f.ref||'').replace(/[\/\\]/g,'-');window.print();document.title=t}
 document.querySelectorAll('.f').forEach(function(e){e.value=S.f[e.dataset.k]||'';e.oninput=function(){S.f[e.dataset.k]=e.value;save()}});
 $('terms').innerHTML=S.terms||DT.map(function(t){return '<li>'+t.replace(/&/g,'&amp;')+'</li>'}).join('');

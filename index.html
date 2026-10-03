@@ -4,6 +4,7 @@
 <title>AFM Quotation</title>
 <link rel="stylesheet" href="style.css"></head><body>
 <div class="bar np">
+ <button onclick="openDR()">📅 Date &amp; Ref</button>
  <button onclick="openBuyer()">👤 Buyer details</button>
  <button class="p" onclick="addLine()">＋ Add product</button>
  <button onclick="tgl()">📦 Products &amp; prices</button>
@@ -41,6 +42,14 @@
   <div class="two"><label>Receiver name<input type="text" id="m_rn"></label>
   <label>Mobile no.<input type="tel" id="m_mob"></label></div>
   <div class="mact"><button onclick="closeBuyer()">Cancel</button><button class="p" onclick="saveBuyer()">Save &amp; fill quotation</button></div>
+ </div>
+</div>
+<div class="modal np" id="drmodal" onclick="if(event.target===this)closeDR()">
+ <div class="mbox">
+  <h3>Date &amp; reference number</h3>
+  <label>Date<input type="date" id="m_date"></label>
+  <label>Reference number<input type="text" id="m_ref" placeholder="AFM/2026-270101"></label>
+  <div class="mact"><button onclick="closeDR()">Cancel</button><button class="p" onclick="saveDR()">Save &amp; fill quotation</button></div>
  </div>
 </div>
 <script src="script.js"></script></body></html>
