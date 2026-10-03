@@ -33,7 +33,9 @@
   .terms{background:#eee;width:62%;padding:2mm 3mm;margin-top:6mm;font-size:7.2pt;line-height:1.45;min-height:30mm}
   .terms-title{font-weight:700;font-size:9pt;margin-bottom:1mm}
   .terms ol{margin:0;padding-left:10mm}
-  .footer{position:absolute;left:13.5mm;right:13.5mm;bottom:20mm;height:35mm}
+  .terms li{margin:0;padding:0}
+  .terms textarea.editable{display:block;width:100%;min-height:0;height:auto;resize:none;overflow:hidden;line-height:1.25;white-space:pre-wrap;word-break:break-word;overflow-wrap:anywhere;padding:0;margin:0}
+  .footer{margin-top:18mm;height:35mm}
   .company-sign{text-align:right;font-size:10pt;margin-top:0}
   .authorized{text-align:right;font-size:10pt;margin-top:27mm}
   .small-btn{display:inline-block;border:0;background:#eee;padding:2px 6px;border-radius:3px;cursor:pointer;font-size:11px}
@@ -43,15 +45,27 @@
 
   .remove-cell{text-align:center;padding:1mm}
   .screen-only{display:table-cell}
+  /* Print flow: the quotation grows naturally and continues onto page 2 when needed. */
+  thead{display:table-header-group}
+  tfoot{display:table-row-group}
+  tr{break-inside:avoid;page-break-inside:avoid}
+  .terms{break-inside:avoid;page-break-inside:avoid}
+
   @media print{
     @page{size:A4 portrait;margin:0}
     html,body{width:210mm!important;min-width:210mm!important;margin:0!important;padding:0!important;background:#fff!important}
     .toolbar,.screen-only,.modal-backdrop{display:none!important}
     .page{
-      width:210mm!important;height:297mm!important;min-height:297mm!important;
-      margin:0!important;padding:10mm 12mm 8mm!important;
-      box-shadow:none!important;transform:none!important;overflow:hidden!important;
-      page-break-after:avoid;break-after:avoid-page;
+      width:210mm!important;
+      height:auto!important;
+      min-height:297mm!important;
+      margin:0!important;
+      padding:10mm 12mm 8mm!important;
+      box-shadow:none!important;
+      transform:none!important;
+      overflow:visible!important;
+      page-break-after:auto;
+      break-after:auto;
     }
     .header{height:25mm;border-bottom:1.1mm solid #111}
     .logo{width:60mm;margin-top:-1mm}
@@ -73,7 +87,7 @@
     .terms{width:62%;padding:1.8mm 2.5mm;margin-top:4mm;font-size:6.7pt;line-height:1.35;min-height:27mm}
     .terms-title{font-size:8.2pt;margin-bottom:.5mm}
     .terms ol{padding-left:8mm}
-    .footer{left:12mm;right:12mm;bottom:10mm;height:25mm}
+    .footer{margin-top:12mm;height:25mm}
     .company-sign{font-size:9pt}
     .authorized{font-size:9pt;margin-top:17mm}
     input.editable,textarea.editable{appearance:none;-webkit-appearance:none}

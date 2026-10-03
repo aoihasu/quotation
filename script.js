@@ -60,7 +60,7 @@ function applyForm(){
 function autoGrowTextarea(el){
   if(!el || !el.matches('textarea.editable')) return;
   el.style.height='auto';
-  el.style.height=Math.max(el.scrollHeight, 30)+'px';
+  el.style.height=(el.classList.contains('term-editable') ? el.scrollHeight : Math.max(el.scrollHeight, 30))+'px';
 }
 function autoGrowAll(){
   document.querySelectorAll('textarea.editable').forEach(autoGrowTextarea);
