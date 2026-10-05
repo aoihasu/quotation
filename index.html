@@ -1,61 +1,42 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>AFM Quotation Maker</title>
+<title>AFM Quotation</title>
 <link rel="stylesheet" href="style.css"></head><body>
-
-<div id="home">
- <div class="hm">
-  <h2>Quotations</h2>
-  <div class="hb"><button class="p" onclick="newQ()">＋ New quotation</button><button onclick="tgl()">📦 Products &amp; prices</button><button id="bU" onclick="openUsers()" style="display:none">👥 Users</button><button id="bE" onclick="exportExcel()" style="display:none">📊 Export to Excel</button><button id="bB" onclick="backup()" style="display:none">⬇ Backup</button>
-   <label class="btn" id="bR" style="display:none">⬆ Restore<input type="file" accept=".json" hidden onchange="restore(this)"></label></div>
-  <input type="text" id="q" class="srch" placeholder="Search company, ref no. or date…" oninput="home()">
-  <div id="who" class="who"></div>
-  <div id="st" class="cnt"></div>
-  <div id="cnt" class="cnt"></div>
-  <table class="lt"><thead><tr><th>Ref</th><th>Company</th><th>Date</th><th class="r">Total (₹)</th><th></th></tr></thead><tbody id="list"></tbody></table>
- </div>
-</div>
-
-<div id="ed" style="display:none">
 <div class="bar np">
- <button onclick="back()">← All quotations</button>
  <button onclick="openBuyer()">👤 Buyer details</button>
  <button class="p" onclick="addLine()">＋ Add product</button>
  <button onclick="tgl()">📦 Products &amp; prices</button>
- <button onclick="$('tplm').style.display='flex'">🎨 Template</button>
  <button onclick="pr()">🖨 Print</button>
  <button onclick="pr()">⬇ Save PDF</button>
+ <button onclick="if(confirm('Clear all saved data and reset?')){try{localStorage.removeItem('afm_q')}catch(e){};location.reload()}">Reset</button>
 </div>
-<div class="wrap"><div class="sheet t-classic" id="sheet">
- <div class="hd"><img class="logo" src="logo.jpg" alt="AFM logo"><h1 data-e="name"></h1></div>
- <div class="r pl" style="margin-top:8px;line-height:1.5" data-e="addr"></div>
- <div class="row"><div class="qt" data-e="title"></div>
-  <div class="r" style="line-height:1.6"><div class="pl" data-e="gstin"></div>
+<div id="cat"></div>
+<div class="wrap"><div class="sheet" id="sheet">
+ <div class="hd"><img class="logo" src="logo.jpg" alt="AFM logo"><h1>AVON FOOTWEAR MACHINES</h1></div>
+ <div class="r" style="margin-top:8px;line-height:1.5">Plot No. 112, KH No. 22/23<br>Meera Enclave, Ranhola, New Delhi 110041</div>
+ <div class="row"><div class="qt">QUOTATION</div>
+  <div class="r" style="line-height:1.6">GSTIN : 07FSAPR8346K1Z4<br>Email Id : afmindia98@gmail.com
    <div class="box"><div><b>Date:</b><input class="f" data-k="date"></div><div><b>Ref:</b><input class="f" data-k="ref"></div></div></div></div>
  <div class="row" style="margin-top:14px">
-  <div class="to"><span data-e="toL"></span><br><input class="f" data-k="co" placeholder="Company name"><textarea class="f" rows="2" data-k="addr" placeholder="COMPANY ADDRESS"></textarea>
+  <div class="to">TO<br><input class="f" data-k="co" placeholder="Company name"><textarea class="f" rows="2" data-k="addr" placeholder="COMPANY ADDRESS"></textarea>
    <input class="f" data-k="gst" placeholder="GSTIN"><br><br>
-   <span data-e="rnL"></span> <input class="f" data-k="rn" style="width:55%" placeholder="Name"><br><span data-e="mobL"></span> <input class="f" data-k="mob" style="width:62%" placeholder="Mobile"></div>
-  <div class="bank pl" data-e="bank"></div></div>
- <div class="bar2" data-e="note"></div>
- <table><thead><tr><th style="width:42px" data-e="h0"></th><th style="text-align:center" data-e="h1"></th><th style="width:70px;text-align:center" data-e="h2"></th><th style="width:100px;text-align:center" data-e="h3"></th><th style="width:45px;text-align:center" data-e="h4"></th><th style="width:90px;text-align:center" data-e="h5"></th><th style="width:105px;text-align:center" data-e="h6"></th><th class="np"></th></tr></thead>
+   RECIEVER NAME : <input class="f" data-k="rn" style="width:62%" placeholder="Name"><br>MOBILE NO : <input class="f" data-k="mob" style="width:70%" placeholder="Mobile"></div>
+  <div class="bank"><h4>BANK DETAILS :</h4>BANK NAME : HDFC BANK<br>A/C NO. &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: 50200070797181<br>IFSC CODE &nbsp;: HDFC0000328<br>BRANCH &nbsp;&nbsp;&nbsp;&nbsp;: C BLOCK VIKAS PURI, DELHI</div></div>
+ <div class="bar2">WE ARE PLEASED TO OFFER OUR BEST PRICE</div>
+ <table><thead><tr><th style="width:42px">S.No.</th><th style="text-align:center">DESCRIPTION</th><th style="width:70px;text-align:center">QTY</th><th style="width:100px;text-align:center">UNIT PRICE</th><th style="width:45px;text-align:center">GST</th><th style="width:90px;text-align:center">GST AMOUNT</th><th style="width:105px;text-align:center">TOTAL AMOUNT</th><th class="np"></th></tr></thead>
  <tbody id="tb"></tbody></table>
- <div class="tot"><b data-e="totL"></b><span id="gt">0.00</span></div>
+ <div class="tot"><b>TOTAL AMOUNT</b><span id="gt">0.00</span></div>
  <div class="tail">
-  <div class="terms"><h5 data-e="tH"></h5><ol id="terms" contenteditable="true"></ol></div>
-  <div class="sign"><span data-e="sigco"></span><div></div><span data-e="sig"></span></div>
+  <div class="terms"><h5>Terms &amp; Conditions</h5><ol id="terms" contenteditable="true"></ol></div>
+  <div class="sign">Avon Footwear Machines<div></div>Authorized Signature</div>
  </div>
 </div></div>
-</div>
-
-<div id="cat"></div>
-
 <div class="modal np" id="modal" onclick="if(event.target===this)closeBuyer()">
  <div class="mbox">
   <h3>Buyer details</h3>
   <div class="two"><label>Date<input type="date" id="m_date"></label>
-  <label>Reference number<input type="text" id="m_ref"></label></div>
+  <label>Reference number<input type="text" id="m_ref" placeholder="AFM/2026-270101"></label></div>
   <label>Company name<input type="text" id="m_co"></label>
   <label>Company address<textarea id="m_addr" rows="3"></textarea></label>
   <label>GSTIN<input type="text" id="m_gst"></label>
@@ -64,36 +45,4 @@
   <div class="mact"><button onclick="closeBuyer()">Cancel</button><button class="p" onclick="saveBuyer()">Save &amp; fill quotation</button></div>
  </div>
 </div>
-
-<div class="modal np" id="tplm" onclick="if(event.target===this)this.style.display='none'">
- <div class="mbox">
-  <h3>Choose template</h3>
-  <div class="tcs">
-   <button class="tc" data-t="classic" onclick="setT('classic')"><b>Classic</b><small>Original AFM look</small></button>
-   <button class="tc" data-t="modern" onclick="setT('modern')"><b>Modern</b><small>Colour header &amp; table</small></button>
-   <button class="tc" data-t="minimal" onclick="setT('minimal')"><b>Minimal</b><small>Clean, serif, lines only</small></button>
-  </div>
-  <label>Accent colour (Modern &amp; Minimal)<input type="color" id="m_ac" oninput="setAc(this.value)" style="height:38px;padding:2px"></label>
-  <small style="opacity:.7">Tip: every heading, label, address, bank detail and description on the quotation can be edited by clicking on it. Changes carry over to your next new quotation.</small>
-  <div class="mact"><button class="p" onclick="$('tplm').style.display='none'">Done</button></div>
- </div>
-</div>
-<div id="login" class="np">
- <div class="mbox">
-  <img src="logo.jpg" alt="AFM" style="height:56px;margin-bottom:10px">
-  <h3 id="lt">Log in</h3>
-  <small id="ls" style="display:none;margin-bottom:10px">First time: create the main admin ID and password. Only you will be able to add other users.</small>
-  <label>User ID<input type="text" id="lu" autocomplete="username"></label>
-  <label>Password<input type="password" id="lp" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></label>
-  <div id="le" style="color:#c62828;font-size:13px;min-height:18px"></div>
-  <div class="mact"><button class="p" id="lb" onclick="doLogin()">Log in</button></div>
- </div>
-</div>
-<div class="modal np" id="usrm" onclick="if(event.target===this)this.style.display='none'">
- <div class="mbox wide"><h3>Users &amp; login IDs</h3><div id="ul"></div>
-  <h4 style="margin:14px 0 6px">Add a user</h4>
-  <div class="cr" style="grid-template-columns:1fr 1fr 110px 80px;min-width:0"><input type="text" id="nu" placeholder="User ID"><input type="text" id="np" placeholder="Password (8+ chars)"><select id="nr"><option value="staff">Staff</option><option value="admin">Admin</option></select><button class="p" onclick="addUser()">Add</button></div>
-  <small>Staff can make and edit quotations. Admins can also delete quotations, manage users and use Backup/Restore.</small>
-  <div class="mact"><button class="p" onclick="$('usrm').style.display='none'">Done</button></div>
- </div></div>
 <script src="script.js"></script></body></html>
