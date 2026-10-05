@@ -96,3 +96,9 @@ td.np,th.np{border:0;width:30px;padding:0 0 0 4px}
 
 .bd{padding:2px 8px;border-radius:10px;background:#eee;font-size:12px;white-space:nowrap}.bd.ok{background:#e0f2e1;color:#2e7d32}
 #bS.on{background:#e0f2e1;border-color:#2e7d32;color:#2e7d32}
+
+.ps{position:relative;margin-bottom:4px}
+.psi{width:100%;padding:6px 8px;border:1px solid #999;border-radius:5px;font:inherit;font-size:13px}
+.psl{display:none;position:absolute;left:0;right:0;top:100%;z-index:30;background:#fff;color:#111;border:1px solid #888;border-radius:5px;max-height:240px;overflow:auto;box-shadow:0 6px 18px #0004;font-size:13px}
+.po,.pe{padding:7px 9px;border-bottom:1px solid #eee;cursor:pointer}
+.po.on,.po:hover{background:#fde7e8}.po small{opacity:.7;white-space:nowrap}.pe{cursor:default;opacity:.7}
