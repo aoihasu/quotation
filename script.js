@@ -11,9 +11,10 @@ var C={cat:DC,nid:3},IDX=[],Q=null,PROF={},API=false,tm=null;
 function api(m,u,b){return fetch(u,{method:m,headers:{'Content-Type':'application/json'},body:b===undefined?undefined:JSON.stringify(b)}).then(function(r){if(!r.ok)throw new Error(r.status);return r.json()})}
 var ME=null;
 function down(e){if(e&&e.message==='401'){showLogin(false)}else{$('st').textContent='🔴 Cannot reach the server. Check your internet and refresh.';$('st').style.color='#c62828'}}
-function status(){$('st').textContent='🟢 Connected to the database — all changes are saved automatically.';$('st').style.color='#2e7d32';
- $('who').innerHTML='👤 <b>'+esc(ME.username)+'</b> ('+ME.role+') <button onclick="logout()">Log out</button>';
- ['bU','bB','bE','xf'].forEach(function(i){$(i).style.display=ME.role==='admin'?'':'none'});$('bR').style.display=ME.role==='admin'?'':'none'}
+function status(){var on=API,adm=ME.role==='admin';
+ $('st').textContent=on?'🟢 Connected to the database — all changes are saved automatically.':'💾 Saved in this browser only (no server found). Use Export to Excel / Backup regularly.';$('st').style.color=on?'#2e7d32':'#b26a00';
+ $('who').innerHTML=on?'👤 <b>'+esc(ME.username)+'</b> ('+ME.role+') <button onclick="logout()">Log out</button>':'';
+ ['bB','bE','xf','bR'].forEach(function(i){$(i).style.display=adm?'':'none'});$('bU').style.display=adm&&on?'':'none'}
 function csave(){if(API)api('PUT','/api/cat',C).catch(down);else sv('afm_cat',C)}
 function psave(){var p={e:Q.e,tpl:Q.tpl,ac:Q.ac,terms:Q.terms};PROF=p;if(API)api('PUT','/api/prof',p).catch(down);else sv('afm_prof',p)}
 function nextN(cb){if(API)api('POST','/api/next').then(function(r){cb(r.n)}).catch(down);else{var n=ld('afm_n',0)+1;sv('afm_n',n);cb(n)}}
@@ -140,7 +141,8 @@ function start(){
    var cat=ld('afm_cat',null);importAll({cat:cat||C,prof:ld('afm_prof',{}),n:ld('afm_n',0),quotes:lx.map(function(x){return ld('afm_q_'+x.id,null)})},function(){status();home()})}
   else{status();home()}
  }).catch(down)}
-function init(){api('GET','/api/session').then(function(s){if(s.user){ME=s.user;start()}else showLogin(s.setup)}).catch(function(){$('login').style.display='flex';$('le').textContent='Cannot reach the server.'})}
+function localMode(){API=false;ME={username:'local',role:'admin'};C=ld('afm_cat',null);if(!C||!C.cat)C={cat:DC,nid:3};PROF=ld('afm_prof',{});IDX=ld('afm_idx',[]);$('login').style.display='none';status();home()}
+function init(){api('GET','/api/session').then(function(s){if(s.user){ME=s.user;start()}else showLogin(s.setup)}).catch(localMode)}
 /* ---------- users (admin) ---------- */
 function openUsers(){api('GET','/api/users').then(function(us){
  $('ul').innerHTML=us.map(function(u){var n=esc(u.username);return '<div class="ur"><b>'+n+'</b><span>'+u.role+(u.active?'':' · <i>locked</i>')+'</span><button onclick="uPw(\''+n+'\')">Reset password</button><button onclick="uAct(\''+n+'\','+(u.active?0:1)+')">'+(u.active?'Lock':'Unlock')+'</button><button onclick="uDel(\''+n+'\')">✕</button></div>'}).join('');$('usrm').style.display='flex'}).catch(down)}
