@@ -6,10 +6,19 @@ var DT=['Valid for 15 Days.','Payment Terms : 100% Payment in Advance.','Price :
 var DE={name:'AVON FOOTWEAR MACHINES',addr:'Plot No. 112, KH No. 22/23\nMeera Enclave, Ranhola, New Delhi 110041',title:'QUOTATION',gstin:'GSTIN : 07FSAPR8346K1Z4\nEmail Id : afmindia98@gmail.com',toL:'TO',rnL:'RECIEVER NAME :',mobL:'MOBILE NO :',
  bank:'BANK DETAILS :\n\nBANK NAME : HDFC BANK\nA/C NO. : 50200070797181\nIFSC CODE : HDFC0000328\nBRANCH : C BLOCK VIKAS PURI, DELHI',note:'WE ARE PLEASED TO OFFER OUR BEST PRICE',
  h0:'S.No.',h1:'DESCRIPTION',h2:'QTY',h3:'UNIT PRICE',h4:'GST',h5:'GST AMOUNT',h6:'TOTAL AMOUNT',totL:'TOTAL AMOUNT',tH:'Terms & Conditions',sigco:'Avon Footwear Machines',sig:'Authorized Signature'};
-var C=ld('afm_cat',null);
-if(!C){var o=ld('afm_q',null);C=(o&&o.cat)?{cat:o.cat,nid:o.nid||50}:{cat:[{id:1,name:'40 Feet Pasting Conveyor without heating chamber',price:180000,gst:18,img:''},{id:2,name:'40 Feet Pasting Conveyor with heating chamber size (6,6,8) feet with nir system',price:350000,gst:18,img:''}],nid:3};sv('afm_cat',C)}
-var IDX=ld('afm_idx',[]),Q=null;
-function csave(){sv('afm_cat',C)}
+var DC=[{id:1,name:'40 Feet Pasting Conveyor without heating chamber',price:180000,gst:18,img:''},{id:2,name:'40 Feet Pasting Conveyor with heating chamber size (6,6,8) feet with nir system',price:350000,gst:18,img:''}];
+var C={cat:DC,nid:3},IDX=[],Q=null,PROF={},API=false,tm=null;
+function api(m,u,b){return fetch(u,{method:m,headers:{'Content-Type':'application/json'},body:b===undefined?undefined:JSON.stringify(b)}).then(function(r){if(!r.ok)throw new Error(r.status);return r.json()})}
+var ME=null;
+function down(e){if(e&&e.message==='401'){showLogin(false)}else{$('st').textContent='🔴 Cannot reach the server. Check your internet and refresh.';$('st').style.color='#c62828'}}
+function status(){$('st').textContent='🟢 Connected to the database — all changes are saved automatically.';$('st').style.color='#2e7d32';
+ $('who').innerHTML='👤 <b>'+esc(ME.username)+'</b> ('+ME.role+') <button onclick="logout()">Log out</button>';
+ ['bU','bB','bE'].forEach(function(i){$(i).style.display=ME.role==='admin'?'':'none'});$('bR').style.display=ME.role==='admin'?'':'none'}
+function csave(){if(API)api('PUT','/api/cat',C).catch(down);else sv('afm_cat',C)}
+function psave(){var p={e:Q.e,tpl:Q.tpl,ac:Q.ac,terms:Q.terms};PROF=p;if(API)api('PUT','/api/prof',p).catch(down);else sv('afm_prof',p)}
+function nextN(cb){if(API)api('POST','/api/next').then(function(r){cb(r.n)}).catch(down);else{var n=ld('afm_n',0)+1;sv('afm_n',n);cb(n)}}
+function getQ(id,cb){if(API)api('GET','/api/quote/'+id).then(cb).catch(function(){cb(null)});else cb(ld('afm_q_'+id,null))}
+function putQ(q){if(API)api('PUT','/api/quote/'+q.id,{q:q,tot:total(q)}).catch(down);else{sv('afm_q_'+q.id,q);sv('afm_idx',IDX)}}
 function fmt(n){return Number(n).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2})}
 function P(id){return C.cat.filter(function(p){return p.id==id})[0]}
 function esc(t){return String(t).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')}
@@ -18,19 +27,20 @@ function rd(e){return e.innerText!==undefined?e.innerText:e.textContent}
 function today(){var d=new Date();return d.getDate()+' '+M[d.getMonth()]+' '+d.getFullYear()}
 function total(q){var g=0;q.lines.forEach(function(l){var p=P(l.pid);if(p){var b=(+l.qty||0)*p.price;g+=b+b*p.gst/100}});return g}
 function idxPut(q){var x={id:q.id,co:q.f.co||'',ref:q.f.ref||'',date:q.f.date||'',tot:total(q),ts:Date.now()},i=-1;IDX.forEach(function(r,k){if(r.id==q.id)i=k});if(i<0)IDX.push(x);else IDX[i]=x}
-function save(){if(!Q)return;if(!Q.f.co&&!Q.lines.some(function(l){return l.pid})&&!IDX.some(function(x){return x.id==Q.id}))return;Q.terms=$('terms').innerHTML;if(!sv('afm_q_'+Q.id,Q))return;idxPut(Q);sv('afm_idx',IDX);sv('afm_prof',{e:Q.e,tpl:Q.tpl,ac:Q.ac,terms:Q.terms})}
+function save(){if(!Q)return;if(!Q.f.co&&!Q.lines.some(function(l){return l.pid})&&!IDX.some(function(x){return x.id==Q.id}))return;Q.terms=$('terms').innerHTML;idxPut(Q);clearTimeout(tm);tm=setTimeout(flush,350)}
+function flush(){clearTimeout(tm);tm=null;if(!Q||!IDX.some(function(x){return x.id==Q.id}))return;Q.terms=$('terms').innerHTML;putQ(Q);psave()}
 /* ---------- home ---------- */
 function home(){Q=null;$('ed').style.display='none';$('home').style.display='block';var s=$('q').value.toLowerCase();
  var r=IDX.filter(function(x){return (x.co+' '+x.ref+' '+x.date).toLowerCase().indexOf(s)>-1}).sort(function(a,b){return b.ts-a.ts});
  $('cnt').textContent=r.length+' of '+IDX.length+' quotations'+(r.length>200?' (showing newest 200 — use search)':'');
  $('list').innerHTML=r.slice(0,200).map(function(x){return '<tr><td>'+esc(x.ref)+'</td><td>'+esc(x.co||'—')+'</td><td>'+esc(x.date)+'</td><td class="r">'+fmt(x.tot)+'</td><td class="r" style="white-space:nowrap"><button onclick="openQ(\''+x.id+'\')">Open</button> <button onclick="dup(\''+x.id+'\')">Copy</button> <button onclick="del(\''+x.id+'\')">✕</button></td></tr>'}).join('')||'<tr><td colspan="5" class="empty">No quotations yet. Click “New quotation”.</td></tr>'}
-function back(){save();home()}
-function blank(){var n=ld('afm_n',0)+1;sv('afm_n',n);var p=ld('afm_prof',{}),y=new Date().getFullYear();
- return {id:'q'+Date.now().toString(36)+Math.random().toString(36).slice(2,5),f:{date:today(),ref:'AFM/'+y+'-'+('000'+n).slice(-4)},lines:[{pid:'',qty:1}],terms:p.terms||null,e:p.e||{},tpl:p.tpl||'classic',ac:p.ac||'#d71920'}}
-function newQ(){Q=blank();show()}
-function openQ(id){var q=ld('afm_q_'+id,null);if(!q){alert('Quotation data not found.');return}Q=q;show()}
-function dup(id){var q=ld('afm_q_'+id,null);if(!q)return;var b=blank();q.id=b.id;q.f.ref=b.f.ref;q.f.date=today();sv('afm_q_'+q.id,q);idxPut(q);sv('afm_idx',IDX);home()}
-function del(id){if(!confirm('Delete this quotation permanently?'))return;try{localStorage.removeItem('afm_q_'+id)}catch(e){}IDX=IDX.filter(function(x){return x.id!=id});sv('afm_idx',IDX);home()}
+function back(){flush();home()}
+function blank(n){var p=PROF||{},y=new Date().getFullYear();
+ return {id:'q'+Date.now().toString(36)+Math.random().toString(36).slice(2,5),f:{date:today(),ref:'AFM/'+y+'-'+('000'+n).slice(-4)},lines:[{pid:'',qty:1}],terms:p.terms||null,e:JSON.parse(JSON.stringify(p.e||{})),tpl:p.tpl||'classic',ac:p.ac||'#d71920'}}
+function newQ(){nextN(function(n){Q=blank(n);show()})}
+function openQ(id){getQ(id,function(q){if(!q){alert('Quotation data not found.');return}Q=q;show()})}
+function dup(id){getQ(id,function(q){if(!q)return;nextN(function(n){var b=blank(n);q.id=b.id;q.f.ref=b.f.ref;q.f.date=today();idxPut(q);putQ(q);home()})})}
+function del(id){if(!confirm('Delete this quotation permanently?'))return;IDX=IDX.filter(function(x){return x.id!=id});if(API)api('DELETE','/api/quote/'+id).catch(down);else{try{localStorage.removeItem('afm_q_'+id)}catch(e){}sv('afm_idx',IDX)}home()}
 /* ---------- editor ---------- */
 function show(){$('home').style.display='none';$('ed').style.display='block';
  document.querySelectorAll('.f').forEach(function(e){e.value=Q.f[e.dataset.k]||''});
@@ -72,14 +82,50 @@ function cu(i,k,v){C.cat[i][k]=v;calc();csave();if(Q)save()}
 function dc(i){var id=C.cat[i].id;C.cat.splice(i,1);if(Q)Q.lines.forEach(function(l){if(l.pid==id)l.pid=''});renderCat();renderLines();csave()}
 function ph(i,inp){var f=inp.files[0];if(!f)return;var r=new FileReader();r.onload=function(){var im=new Image();im.onload=function(){var m=500,s=Math.min(1,m/Math.max(im.width,im.height)),c=document.createElement('canvas');c.width=im.width*s;c.height=im.height*s;c.getContext('2d').drawImage(im,0,0,c.width,c.height);C.cat[i].img=c.toDataURL('image/jpeg',.8);renderCat();renderLines();csave()};im.src=r.result};r.readAsDataURL(f)}
 /* ---------- backup / restore ---------- */
-function backup(){var all={cat:C,n:ld('afm_n',0),prof:ld('afm_prof',{}),quotes:IDX.map(function(x){return ld('afm_q_'+x.id,null)}).filter(Boolean)};
- var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(all)],{type:'application/json'}));a.download='afm_backup_'+new Date().toISOString().slice(0,10)+'.json';a.click()}
-function restore(inp){var f=inp.files[0];if(!f)return;var r=new FileReader();r.onload=function(){try{var o=JSON.parse(r.result);if(o.cat){C=o.cat;csave()}if(o.prof)sv('afm_prof',o.prof);if(o.n>ld('afm_n',0))sv('afm_n',o.n);
- (o.quotes||[]).forEach(function(q){if(q&&q.id){sv('afm_q_'+q.id,q);idxPut(q)}});sv('afm_idx',IDX);home();alert('Restored '+(o.quotes||[]).length+' quotations.')}catch(e){alert('Not a valid backup file.')}inp.value=''};r.readAsText(f)}
-function pr(){save();var t=document.title;document.title='Quotation '+((Q.f.ref||'')+' '+(Q.f.co||'')).replace(/[\/\\]/g,'-');window.print();document.title=t}
+function dl(all){var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(all)],{type:'application/json'}));a.download='afm_backup_'+new Date().toISOString().slice(0,10)+'.json';a.click()}
+function backup(){if(API)api('GET','/api/export').then(dl);else dl({cat:C,n:ld('afm_n',0),prof:PROF,quotes:IDX.map(function(x){return ld('afm_q_'+x.id,null)}).filter(Boolean)})}
+function importAll(o,done){var qs=(o.quotes||[]).filter(function(q){return q&&q.id&&q.f});
+ if(API)api('POST','/api/import',{cat:o.cat,prof:o.prof,n:o.n,quotes:qs.map(function(q){return {q:q,tot:total(q),id:q.id,f:q.f}})}).then(function(r){IDX=r.idx;if(o.cat)C=o.cat;done(qs.length)}).catch(down);
+ else{if(o.cat){C=o.cat;csave()}if(o.prof)sv('afm_prof',o.prof);qs.forEach(function(q){sv('afm_q_'+q.id,q);idxPut(q)});sv('afm_idx',IDX);done(qs.length)}}
+function restore(inp){var f=inp.files[0];if(!f)return;var r=new FileReader();r.onload=function(){try{importAll(JSON.parse(r.result),function(n){home();alert('Restored '+n+' quotations.')})}catch(e){alert('Not a valid backup file.')}inp.value=''};r.readAsText(f)}
+function csvCell(v){v=String(v==null?'':v);return /[",\n\r]/.test(v)?'"'+v.replace(/"/g,'""')+'"':v}
+function csvAll(o){var cat={};((o.cat&&o.cat.cat)||[]).forEach(function(p){cat[p.id]=p});
+ var rows=[['Ref','Date','Company','Company address','GSTIN','Receiver name','Mobile','S.No','Product','Qty','Unit price','GST %','GST amount','Line total','Quotation total']];
+ (o.quotes||[]).slice().sort(function(a,b){return String(a.f.ref).localeCompare(String(b.f.ref))}).forEach(function(q){
+  var tot=0,ls=[];(q.lines||[]).forEach(function(l,i){var p=cat[l.pid];if(!p)return;var b=(+l.qty||0)*p.price,g=b*p.gst/100;tot+=b+g;ls.push([i+1,l.d!=null?l.d:p.name,l.qty,p.price,p.gst,g,b+g])});
+  var f=q.f,head=[f.ref,f.date,f.co,f.addr,f.gst,f.rn,f.mob];
+  if(!ls.length)ls.push(['','','','','','','']);
+  ls.forEach(function(r){rows.push(head.concat(r,[tot]))})});
+ return '\ufeff'+rows.map(function(r){return r.map(csvCell).join(',')}).join('\r\n')}
+function exportExcel(){var go=function(o){var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csvAll(o)],{type:'text/csv;charset=utf-8'}));a.download='afm_quotations_'+new Date().toISOString().slice(0,10)+'.csv';a.click()};
+ if(API)api('GET','/api/export').then(go).catch(down);else go({cat:C,quotes:IDX.map(function(x){return ld('afm_q_'+x.id,null)}).filter(Boolean)})}
+function pr(){save();flush();var t=document.title;document.title='Quotation '+((Q.f.ref||'')+' '+(Q.f.co||'')).replace(/[\/\\]/g,'-');window.print();document.title=t}
 /* ---------- wiring ---------- */
 document.querySelectorAll('.f').forEach(function(e){e.oninput=function(){if(Q){Q.f[e.dataset.k]=e.value;save()}}});
 document.querySelectorAll('[data-e]').forEach(function(e){e.contentEditable='true';e.oninput=function(){if(Q){Q.e[e.dataset.e]=rd(e);save()}}});
 $('terms').oninput=function(){save()};
 document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeBuyer();$('tplm').style.display='none';$('cat').style.display='none'}});
-home();
+function showLogin(setup){Q=null;API=false;$('home').style.display='none';$('ed').style.display='none';$('login').style.display='flex';
+ $('lt').textContent=setup?'Create admin account':'Log in';$('ls').style.display=setup?'block':'none';$('lb').textContent=setup?'Create & log in':'Log in';$('lb').dataset.setup=setup?'1':'';$('lp').value='';$('le').textContent='';$('lu').focus()}
+function doLogin(){var s=$('lb').dataset.setup==='1';
+ fetch(s?'/api/setup':'/api/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({u:$('lu').value.trim(),p:$('lp').value})}).then(function(r){return r.json().then(function(d){if(!r.ok)throw new Error(d.error||'Failed');return d})})
+ .then(function(d){ME=d.user;$('login').style.display='none';start()}).catch(function(e){$('le').textContent=e.message})}
+function logout(){flush();fetch('/api/logout',{method:'POST'}).then(function(){ME=null;showLogin(false)})}
+function start(){
+ api('GET','/api/state').then(function(s){API=true;C=s.cat;PROF=s.prof||{};IDX=s.idx||[];
+  if(!C||!C.cat){C={cat:DC,nid:3};csave()}
+  var lx=ld('afm_idx',[]);
+  if(ME.role==='admin'&&!IDX.length&&lx.length&&confirm('Found '+lx.length+' quotations saved in this browser. Copy them into the database now?')){
+   var cat=ld('afm_cat',null);importAll({cat:cat||C,prof:ld('afm_prof',{}),n:ld('afm_n',0),quotes:lx.map(function(x){return ld('afm_q_'+x.id,null)})},function(){status();home()})}
+  else{status();home()}
+ }).catch(down)}
+function init(){api('GET','/api/session').then(function(s){if(s.user){ME=s.user;start()}else showLogin(s.setup)}).catch(function(){$('login').style.display='flex';$('le').textContent='Cannot reach the server.'})}
+/* ---------- users (admin) ---------- */
+function openUsers(){api('GET','/api/users').then(function(us){
+ $('ul').innerHTML=us.map(function(u){var n=esc(u.username);return '<div class="ur"><b>'+n+'</b><span>'+u.role+(u.active?'':' · <i>locked</i>')+'</span><button onclick="uPw(\''+n+'\')">Reset password</button><button onclick="uAct(\''+n+'\','+(u.active?0:1)+')">'+(u.active?'Lock':'Unlock')+'</button><button onclick="uDel(\''+n+'\')">✕</button></div>'}).join('');$('usrm').style.display='flex'}).catch(down)}
+function uCall(m,u,b){api(m,'/api/users'+(u?'/'+u:''),b).then(openUsers).catch(function(e){alert(e.message==='400'||e.message==='403'?'Not allowed (check ID/password rules).':e.message);down(e)})}
+function addUser(){uCall('POST','',{u:$('nu').value.trim(),p:$('np').value,role:$('nr').value});$('nu').value='';$('np').value=''}
+function uPw(u){var p=prompt('New password for '+u+' (8+ characters):');if(p)uCall('PUT',u,{p:p})}
+function uAct(u,a){uCall('PUT',u,{active:a})}
+function uDel(u){if(confirm('Delete login ID '+u+'? Their quotations stay.'))uCall('DELETE',u)}
+init();

@@ -89,3 +89,7 @@ td.np,th.np{border:0;width:30px;padding:0 0 0 4px}
 .t-minimal th,.t-minimal td{border:0;border-bottom:1px solid #999}.t-minimal th{border-bottom:2px solid var(--ac)}
 .t-minimal .tot b{background:none;border:0;font-weight:700}.t-minimal .tot span{border:0;border-top:2px solid var(--ac);font-weight:700}
 @media print{#home{display:none!important}}
+
+#login{display:none;position:fixed;inset:0;background:var(--bg);z-index:30;align-items:center;justify-content:center;padding:12px}
+.who{font-size:13px;margin:4px 0;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.ur{display:flex;gap:6px;align-items:center;padding:6px 0;border-bottom:1px solid var(--line);flex-wrap:wrap}.ur b{flex:1;min-width:110px}

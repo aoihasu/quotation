@@ -7,9 +7,11 @@
 <div id="home">
  <div class="hm">
   <h2>Quotations</h2>
-  <div class="hb"><button class="p" onclick="newQ()">＋ New quotation</button><button onclick="tgl()">📦 Products &amp; prices</button><button onclick="backup()">⬇ Backup</button>
-   <label class="btn">⬆ Restore<input type="file" accept=".json" hidden onchange="restore(this)"></label></div>
+  <div class="hb"><button class="p" onclick="newQ()">＋ New quotation</button><button onclick="tgl()">📦 Products &amp; prices</button><button id="bU" onclick="openUsers()" style="display:none">👥 Users</button><button id="bE" onclick="exportExcel()" style="display:none">📊 Export to Excel</button><button id="bB" onclick="backup()" style="display:none">⬇ Backup</button>
+   <label class="btn" id="bR" style="display:none">⬆ Restore<input type="file" accept=".json" hidden onchange="restore(this)"></label></div>
   <input type="text" id="q" class="srch" placeholder="Search company, ref no. or date…" oninput="home()">
+  <div id="who" class="who"></div>
+  <div id="st" class="cnt"></div>
   <div id="cnt" class="cnt"></div>
   <table class="lt"><thead><tr><th>Ref</th><th>Company</th><th>Date</th><th class="r">Total (₹)</th><th></th></tr></thead><tbody id="list"></tbody></table>
  </div>
@@ -76,4 +78,22 @@
   <div class="mact"><button class="p" onclick="$('tplm').style.display='none'">Done</button></div>
  </div>
 </div>
+<div id="login" class="np">
+ <div class="mbox">
+  <img src="logo.jpg" alt="AFM" style="height:56px;margin-bottom:10px">
+  <h3 id="lt">Log in</h3>
+  <small id="ls" style="display:none;margin-bottom:10px">First time: create the main admin ID and password. Only you will be able to add other users.</small>
+  <label>User ID<input type="text" id="lu" autocomplete="username"></label>
+  <label>Password<input type="password" id="lp" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></label>
+  <div id="le" style="color:#c62828;font-size:13px;min-height:18px"></div>
+  <div class="mact"><button class="p" id="lb" onclick="doLogin()">Log in</button></div>
+ </div>
+</div>
+<div class="modal np" id="usrm" onclick="if(event.target===this)this.style.display='none'">
+ <div class="mbox wide"><h3>Users &amp; login IDs</h3><div id="ul"></div>
+  <h4 style="margin:14px 0 6px">Add a user</h4>
+  <div class="cr" style="grid-template-columns:1fr 1fr 110px 80px;min-width:0"><input type="text" id="nu" placeholder="User ID"><input type="text" id="np" placeholder="Password (8+ chars)"><select id="nr"><option value="staff">Staff</option><option value="admin">Admin</option></select><button class="p" onclick="addUser()">Add</button></div>
+  <small>Staff can make and edit quotations. Admins can also delete quotations, manage users and use Backup/Restore.</small>
+  <div class="mact"><button class="p" onclick="$('usrm').style.display='none'">Done</button></div>
+ </div></div>
 <script src="script.js"></script></body></html>
