@@ -62,18 +62,28 @@ function setAc(v){Q.ac=v;applyTpl();save()}
 function renderLines(){if(!Q)return;
  var opts=function(sel){return '<option value="">— select product —</option>'+C.cat.map(function(p){return '<option value="'+p.id+'"'+(p.id==sel?' selected':'')+'>'+esc(p.name)+'</option>'}).join('')};
  $('tb').innerHTML=Q.lines.length?Q.lines.map(function(l,i){var p=LP(l);
-  return '<tr><td>'+(i+1)+'.</td><td><select class="np" onchange="setP('+i+',this.value)">'+opts(l.pid)+'</select><div class="dd" id="d'+i+'" contenteditable="true" oninput="setD('+i+',this)"></div>'+(p&&p.img?'<img src="'+p.img+'">':'')+'</td><td><input class="q" type="number" min="1" value="'+l.qty+'" oninput="setQ('+i+',this.value)"> set</td><td id="u'+i+'"></td><td id="g'+i+'"></td><td id="ga'+i+'"></td><td id="t'+i+'"></td><td class="np"><button onclick="del2('+i+')" title="Remove">✕</button></td></tr>'}).join(''):'<tr><td colspan="7" class="empty">No products. Click “Add product”.</td></tr>';
+  return '<tr><td>'+(i+1)+'.</td><td><div class="ps np"><input type="text" class="psi" placeholder="🔍 Search product…" autocomplete="off" value="'+esc(p?p.name:'')+'" onfocus="this.select();psFill('+i+',this,\'\')" oninput="psFill('+i+',this,this.value)" onkeydown="psKey('+i+',event)" onblur="psClose('+i+',this)"><div class="psl" id="pl'+i+'"></div></div><div class="dd" id="d'+i+'" contenteditable="true" oninput="setD('+i+',this)"></div>'+(p&&p.img?'<img src="'+p.img+'">':'')+'</td><td><input class="q" type="number" min="1" value="'+l.qty+'" oninput="setQ('+i+',this.value)"> set</td><td id="u'+i+'"></td><td id="g'+i+'"></td><td id="ga'+i+'"></td><td id="t'+i+'"></td><td class="np"><button onclick="del2('+i+')" title="Remove">✕</button></td></tr>'}).join(''):'<tr><td colspan="7" class="empty">No products. Click “Add product”.</td></tr>';
  Q.lines.forEach(function(l,i){var p=LP(l);$('d'+i).textContent=l.d!=null?l.d:(p?p.name:'')});calc()}
 function calc(){if(!Q)return;var g=0;Q.lines.forEach(function(l,i){var p=LP(l),q=+l.qty||0;
  if(!p){['u','g','ga','t'].forEach(function(k){$(k+i).textContent=''});return}
  var b=q*p.price,ga=b*p.gst/100;g+=b+ga;
  $('u'+i).textContent=fmt(p.price);$('g'+i).textContent=p.gst+'%';$('ga'+i).textContent=fmt(ga);$('t'+i).textContent=fmt(b+ga)});
  $('gt').textContent=fmt(g)}
+/* ---------- searchable product picker ---------- */
+function psFill(i,el,term){var l=$('pl'+i),w=term.toLowerCase().split(/\s+/).filter(Boolean);
+ var r=C.cat.filter(function(p){var n=p.name.toLowerCase();return w.every(function(x){return n.indexOf(x)>-1})});
+ l.innerHTML=r.length?r.map(function(p,k){return '<div class="po'+(k?'':' on')+'" data-id="'+p.id+'" onmousedown="event.preventDefault();setP('+i+',\''+p.id+'\')">'+esc(p.name)+' <small>\u20B9'+fmt(p.price)+'</small></div>'}).join(''):'<div class="pe">No product found</div>';
+ l.style.display='block'}
+function psKey(i,e){var l=$('pl'+i),o=l.querySelectorAll('.po'),c=-1;o.forEach(function(x,k){if(x.classList.contains('on'))c=k});
+ if(e.key==='ArrowDown'||e.key==='ArrowUp'){if(!o.length)return;e.preventDefault();var n=(c+(e.key==='ArrowDown'?1:-1)+o.length)%o.length;o.forEach(function(x,k){x.classList.toggle('on',k===n)});o[n].scrollIntoView({block:'nearest'})}
+ else if(e.key==='Enter'){e.preventDefault();if(c>-1)setP(i,o[c].dataset.id)}
+ else if(e.key==='Escape'){l.style.display='none';e.target.blur()}}
+function psClose(i,el){var l=$('pl'+i);if(l)l.style.display='none';var p=Q&&Q.lines[i]?LP(Q.lines[i]):null;el.value=p?p.name:''}
 function setP(i,v){Q.lines[i].pid=v;delete Q.lines[i].d;delete Q.lines[i].fz;renderLines();save()}
 function setD(i,el){Q.lines[i].d=rd(el);save()}
 function setQ(i,v){Q.lines[i].qty=v;calc();save()}
 function del2(i){Q.lines.splice(i,1);renderLines();save()}
-function addLine(){Q.lines.push({pid:'',qty:1});renderLines();save()}
+function addLine(){Q.lines.push({pid:'',qty:1});renderLines();save();var x=document.querySelectorAll('.psi');if(x.length)x[x.length-1].focus()}
 /* ---------- buyer popup ---------- */
 var BK=['co','addr','gst','rn','mob'];
 function openBuyer(){var t=Date.parse(Q.f.date||''),x=isNaN(t)?new Date():new Date(t);$('m_date').value=x.getFullYear()+'-'+pad(x.getMonth()+1)+'-'+pad(x.getDate());$('m_ref').value=Q.f.ref||'';BK.forEach(function(k){$('m_'+k).value=Q.f[k]||''});$('modal').style.display='flex';$('m_co').focus()}
