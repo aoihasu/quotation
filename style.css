@@ -17,7 +17,7 @@ button.p{background:#d71920;color:#fff;border-color:#d71920}
 .sheet{background:#fff;color:#000;width:210mm;max-width:none;min-height:297mm;margin:0 auto;padding:10mm;font-size:13px;box-shadow:0 2px 12px #0003}
 .hd{display:flex;justify-content:space-between;align-items:center;border-bottom:4px solid #000;padding-bottom:6px}
 .logo{height:72px;width:auto;display:block}
-.hd h1{margin:0;font-size:22px}
+.hd h1{margin:0;font-size:38px}
 .r{text-align:right}
 input.f,textarea.f{font:inherit;color:#000;background:transparent;border:0;border-bottom:1px dotted #aaa;padding:1px 2px;width:100%;resize:none}
 input.f:focus,textarea.f:focus{outline:1px solid #d71920;background:#fff8f8}
